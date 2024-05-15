@@ -24,8 +24,8 @@ class CheckOutView extends StatelessWidget {
       bottomNavigationBar: const CheckoutButton(),
       body: ListView.separated(
         shrinkWrap: true,
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          itemBuilder: (context, index) => ProductCheckoutTile(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemBuilder: (context, index) => const ProductCheckoutTile(),
           itemCount: 10,
           separatorBuilder: (context, index) => 8.hBox,
        
