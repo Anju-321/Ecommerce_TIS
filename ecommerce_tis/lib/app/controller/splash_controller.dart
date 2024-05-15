@@ -10,8 +10,8 @@ class SplashController extends GetxController {
     
     Future.delayed(const Duration(seconds: 3), () async {
 
-        // Screen.open( OnboardView());
-        Screen.openAsNewPage( HomeView());
+        
+        Screen.openAsNewPage( const HomeView());
       
     });
   }
