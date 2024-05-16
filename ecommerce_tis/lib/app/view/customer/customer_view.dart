@@ -1,3 +1,4 @@
+import 'package:ecommerce_tis/app/controller/customer_controller.dart';
 import 'package:ecommerce_tis/app/view/checkout/checkout_view.dart';
 import 'package:ecommerce_tis/app/widgets/app_cached_image.dart';
 import 'package:ecommerce_tis/app/widgets/app_svg.dart';
@@ -9,6 +10,7 @@ import 'package:ecommerce_tis/core/style/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 
 import '../../../core/style/fonts.dart';
 
@@ -17,76 +19,100 @@ class CustomerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(CustomerController());
     return Scaffold(
-    
       appBar: AppBar(
         title: AppText(
           "Customers",
           style: titleTwo.copyWith(color: secondaryBrandClr),
-          
         ),
-      
       ),
       body: Column(
-        children: [const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: AppTextField(
-               hint: "Search Customer",
-               borderRadius: 18,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: AppTextField(
+              hint: "Search Customer",
+              borderRadius: 18,
               suffixIcon: Icon(CupertinoIcons.search, size: 20),
-          ),
-        ),
-        ListTile(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          tileColor: highlightTextClr,
-          onTap: () {
-            Screen.open(const CheckOutView());            
-          },
-         
-         
-          leading: Container(
-            height: 60,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4)
-              
-            ),
-            child: const CachedImage(imageUrl: "assets/images/default_image.png",isAssetImg: true,),
-
-
-          ),
-          title:  Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const AppText("Nesto Super Market",style:  TextStyle(
-                      fontFamily: inter6SemiBold, fontSize: 14, color: secondaryBrandClr),),
-            const Spacer(),
-            SizedBox(
-            width: 100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-            
-              children: [  const Icon(CupertinoIcons.phone_circle,size:20,),4.wBox, const AppSvg(assetName: "whatsappIcons",height: 25,width: 25,)],
-            
             ),
           ),
-            ],
-          ),
-
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppText("ID: HEJDH",style: captionOne,),
-              AppText("Palazhi,Hilite",style: captionOne,),
-
-
-              
-
-            ],
-          ),
-       
-        )
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.only(right: 16,left: 16,bottom: 60),
+              shrinkWrap: true,
+                itemBuilder: (context, index) => const CustomerTile(),
+                separatorBuilder: (context, index) => 12.hBox,
+                itemCount: 10),
+          )
         ],
-      ) ,
+      ),
+    );
+  }
+}
+
+class CustomerTile extends StatelessWidget {
+  const CustomerTile({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      tileColor: highlightTextClr,
+      onTap: () {
+        Screen.open(const CheckOutView());
+      },
+      leading: Container(
+        height: 60,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+        child: const CachedImage(
+          imageUrl: "assets/images/default_image.png",
+          isAssetImg: true,
+        ),
+      ),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const AppText(
+            "Nesto Super Market",
+            style: TextStyle(
+                fontFamily: inter6SemiBold,
+                fontSize: 14,
+                color: secondaryBrandClr),
+          ),
+          const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const Icon(
+                CupertinoIcons.phone_circle,
+                size: 20,
+              ),
+              4.wBox,
+              const AppSvg(
+                assetName: "whatsappIcons",
+                height: 25,
+                width: 25,
+              )
+            ],
+          ),
+        ],
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            "ID: HEJDH",
+            style: captionOne,
+          ),
+          AppText(
+            "Palazhi,Hilite",
+            style: captionOne,
+          ),
+        ],
+      ),
     );
   }
 }

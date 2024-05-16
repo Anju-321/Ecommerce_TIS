@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/style/colors.dart';
 import '../../../core/style/fonts.dart';
+import '../../widgets/app_cached_image.dart';
 import '../../widgets/app_text.dart';
 
 class ProductView extends StatelessWidget {
@@ -32,22 +33,127 @@ class ProductView extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: const CheckoutButton(),
-
       body: GridView.builder(
         padding: const EdgeInsets.all(8.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 1.25,
-          crossAxisSpacing: 4.0,
-          mainAxisSpacing: 4.0,        
-        
+          childAspectRatio: 1.05,
+          crossAxisSpacing: 4,
+          mainAxisSpacing: 4,
         ),
         itemCount: 10,
         itemBuilder: (context, index) {
-          return const DiscoveryContainer(isProductPage: true,);
+          return const ProductContainer();
         },
       ),
     );
+  }
+}
+
+class ProductContainer extends StatelessWidget {
+  const ProductContainer({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      Column(
+        children: [
+          35.hBox,
+          Container(
+          
+            decoration: BoxDecoration(
+                color: highlightTextClr,
+                borderRadius: BorderRadius.circular(18)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.favorite, color: Colors.red),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const AppText(
+                            "Mango",
+                            style: TextStyle(
+                                fontFamily: inter6SemiBold,
+                                fontSize: 10,
+                                color: primaryClr),
+                          ),
+                          RichText(
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "\$10",
+                                  style: TextStyle(
+                                    fontFamily: inter6SemiBold,
+                                    fontSize: 18,
+                                    color: primaryClr,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "/Kg",
+                                  style: TextStyle(
+                                    fontFamily: inter6SemiBold,
+                                    fontSize:
+                                        12, // Adjust font size for smaller text
+                                    color: Colors
+                                        .grey, // Change color to light grey
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.do_not_disturb_on_outlined,
+                            color: primaryClr,
+                          ),                          
+                          SizedBox ( width:30,child:  AppText("123456789789789",overflow: TextOverflow.ellipsis,)),                        
+                          Icon(
+                            Icons.add_circle,
+                            color: primaryClr,
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                24.hBox
+              ],
+            ),
+          ),
+        ],
+      ),
+      const Positioned(
+        left: 60,
+        top: 12,
+        child: CachedImage(
+          imageUrl: "assets/images/fruits.png",
+          isAssetImg: true,
+          height: 50,
+          width: 35,
+        ),
+      ),
+    ]);
   }
 }
 

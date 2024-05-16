@@ -1,4 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:ecommerce_tis/app/controller/home_controller.dart';
+import 'package:ecommerce_tis/app/model/category_model.dart';
+import 'package:ecommerce_tis/app/model/discovery_item_model.dart';
 import 'package:ecommerce_tis/app/view/customer/customer_view.dart';
 import 'package:ecommerce_tis/app/view/product/product_view.dart';
 import 'package:ecommerce_tis/app/widgets/app_bottom_nav.dart';
@@ -10,6 +13,11 @@ import 'package:ecommerce_tis/core/screen_utils.dart';
 import 'package:ecommerce_tis/core/style/colors.dart';
 import 'package:ecommerce_tis/core/style/fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+
+import '../../widgets/app_loader.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({
@@ -18,6 +26,7 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(HomeController());
     final List carouselImages = [
       'assets/images/carousal1.png',
       'assets/images/carousal2.png',
@@ -31,6 +40,7 @@ class HomeView extends StatelessWidget {
       const ProductView(),
       const CustomerView()
     ];
+
     return Scaffold(
       appBar: AppBar(
         title: AppText(
@@ -57,14 +67,17 @@ class HomeView extends StatelessWidget {
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 16),
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: AppTextField(
               borderRadius: 24,
               bgColor: highlightTextClr,
               hint: "Search grocery",
+              onChanged: (p0) {
+                controller.searchCategories(p0);
+              },
               borderClr: highlightTextClr,
-              prefixIcon: Icon(
+              prefixIcon: const Icon(
                 Icons.search,
                 color: inputHintClr,
               ),
@@ -73,7 +86,6 @@ class HomeView extends StatelessWidget {
           CarouselSlider(
             options: CarouselOptions(
               height: 180,
-              
               autoPlay: true,
               aspectRatio: 1.5,
             ),
@@ -82,7 +94,6 @@ class HomeView extends StatelessWidget {
                 builder: (BuildContext context) {
                   return CachedImage(
                     width: 280,
-                   
                     imageUrl: i,
                     isAssetImg: true,
                     radius: 12,
@@ -100,15 +111,20 @@ class HomeView extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 70,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) => const CategoryContainer(),
-              itemCount: 10,
-              separatorBuilder: (context, index) => 10.wBox,
-            ),
-          ),
+              height: 70,
+              child: Obx(() {
+                return ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return CategoryContainer(
+                      category: controller.homeCategoryList[index],
+                    );
+                  },
+                  itemCount: controller.homeCategoryList.length,
+                  separatorBuilder: (context, index) => 10.wBox,
+                );
+              })),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -125,22 +141,48 @@ class HomeView extends StatelessWidget {
                 AppText(
                   "See All >",
                   style: captionOne.copyWith(color: primaryClr),
+                  onTap: () => Screen.open(const ProductView()),
                 )
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                DiscoveryContainer(),
-                Spacer(),
-                DiscoveryContainer(),
-              ],
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Obx(() {
+
+              if(  controller.discoveryList.isEmpty){
+                return const AppLoader();
+              }else{
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Obx(() {
+                      
+                    return DiscoveryContainer(
+                          item: controller.discoveryList[0],
+                          controller: controller,
+                        
+                      );}
+                    ),
+                    const Spacer(),
+                     Obx(() {
+                      
+                    return DiscoveryContainer(
+                          item: controller.discoveryList[1],
+                          controller: controller,
+                        
+                      );}
+                    ),
+                  ],
+                );
+
+              }
+            
+              
+            }
+            )
+           
           ),
-   
         ],
       ),
     );
@@ -149,10 +191,14 @@ class HomeView extends StatelessWidget {
 
 class DiscoveryContainer extends StatelessWidget {
   const DiscoveryContainer({
-    super.key,this.isProductPage=false
+    super.key, required this.item, required this.controller,
+   
+    
   });
 
-  final bool isProductPage;
+  final DiscoveryItem item;
+  final HomeController controller;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -161,8 +207,7 @@ class DiscoveryContainer extends StatelessWidget {
         children: [
           35.hBox,
           Container(
-            width: 165,
-           
+            width: 150,
             decoration: BoxDecoration(
                 color: highlightTextClr,
                 borderRadius: BorderRadius.circular(18)),
@@ -174,71 +219,74 @@ class DiscoveryContainer extends StatelessWidget {
                   children: [
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.favorite, color: Colors.red),
-                      onPressed: () {},
-                    ),
+          icon: Icon(
+            item.isliked ? Icons.favorite : Icons.favorite_border,
+            color: item.isliked ? Colors.red : null,size: 20,
+          ),
+          onPressed: () {
+            controller.toggleLike(item);
+          },
+        ),
                   ],
                 ),
-                 Padding(
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AppText(
-                            "Mango",
-                            style: TextStyle(
+                           item.itemName,
+                            style: const TextStyle(
                                 fontFamily: inter6SemiBold,
                                 fontSize: 12,
                                 color: primaryClr),
-                      
                           ),
-                         
-                          AppText(
-                        "\$10/Kg",
-                        style: TextStyle(
-                            fontFamily: inter6SemiBold,
-                            fontSize: 18,
-                            color: primaryClr),
-                      ),
-                      
+                          RichText(
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "\$10",
+                                  style: TextStyle(
+                                    fontFamily: inter6SemiBold,
+                                    fontSize: 18,
+                                    color: primaryClr,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "/Kg",
+                                  style: TextStyle(
+                                    fontFamily: inter6SemiBold,
+                                    fontSize:
+                                        12, // Adjust font size for smaller text
+                                    color: Colors
+                                        .grey, // Change color to light grey
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                      const Spacer(),
-                      isProductPage?
-                      Row(
-                        children: [
-                          const Icon(Icons.do_not_disturb_on_outlined,color: primaryClr,),
-                          2.wBox,
-                            const AppText(
-                        "1"
-                      ),
-                      2.wBox,
-                      const Icon(Icons.add_circle,color: primaryClr,)
-                        ],
-                      ):0.hBox,
-
-                    
                     ],
                   ),
                 ),
-               
-                16.hBox
+                24.hBox
               ],
             ),
           ),
         ],
       ),
-      const Positioned(
-        left: 60,
+      Positioned(
+        left: 50,
         bottom: 80,
         child: CachedImage(
-          imageUrl: "assets/images/fruits.png",
+          imageUrl: item.imageUrl,
           isAssetImg: true,
           height: 50,
-          width: 35,
+          width: 45,
         ),
       ),
     ]);
@@ -248,7 +296,9 @@ class DiscoveryContainer extends StatelessWidget {
 class CategoryContainer extends StatelessWidget {
   const CategoryContainer({
     super.key,
+    required this.category,
   });
+  final ProductCategory category;
 
   @override
   Widget build(BuildContext context) {
@@ -259,17 +309,20 @@ class CategoryContainer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CachedImage(
-            imageUrl: 'assets/images/fruits.png',
+          CachedImage(
+            imageUrl: category.imageUrl,
             height: 25,
             width: 25,
             isAssetImg: true,
           ),
           4.hBox,
-          AppText(
-            "title",
-            overflow: TextOverflow.ellipsis,
-            style: captionOne.copyWith(color: primaryClr),
+          SizedBox(
+            width: 35,
+            child: AppText(
+              category.categoryName,
+              overflow: TextOverflow.ellipsis,
+              style: captionOne.copyWith(color: primaryClr),
+            ),
           )
         ],
       ),
