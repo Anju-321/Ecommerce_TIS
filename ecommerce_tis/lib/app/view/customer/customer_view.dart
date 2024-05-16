@@ -1,10 +1,13 @@
 import 'package:ecommerce_tis/app/controller/customer_controller.dart';
+import 'package:ecommerce_tis/app/model/customer_response_model.dart';
 import 'package:ecommerce_tis/app/view/checkout/checkout_view.dart';
 import 'package:ecommerce_tis/app/widgets/app_cached_image.dart';
+import 'package:ecommerce_tis/app/widgets/app_loader.dart';
 import 'package:ecommerce_tis/app/widgets/app_svg.dart';
 import 'package:ecommerce_tis/app/widgets/app_text.dart';
 import 'package:ecommerce_tis/app/widgets/app_text_field.dart';
 import 'package:ecommerce_tis/core/extensions/margin_ext.dart';
+import 'package:ecommerce_tis/core/extensions/string_ext.dart';
 import 'package:ecommerce_tis/core/screen_utils.dart';
 import 'package:ecommerce_tis/core/style/colors.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,7 +22,7 @@ class CustomerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.put(CustomerController());
+   final controller= Get.put(CustomerController());
     return Scaffold(
       appBar: AppBar(
         title: AppText(
@@ -29,21 +32,28 @@ class CustomerView extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+         Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: AppTextField(
               hint: "Search Customer",
               borderRadius: 18,
-              suffixIcon: Icon(CupertinoIcons.search, size: 20),
+              suffixIcon: const Icon(CupertinoIcons.search, size: 20),
+              onChanged: (p0) async{ controller.customerList.value= await controller.getCustomer(query: p0);},
             ),
           ),
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.only(right: 16,left: 16,bottom: 60),
-              shrinkWrap: true,
-                itemBuilder: (context, index) => const CustomerTile(),
-                separatorBuilder: (context, index) => 12.hBox,
-                itemCount: 10),
+            child: Obx(() {
+              if(controller.customerList.isEmpty){
+                return const AppLoader();
+              }
+              
+            return ListView.separated(
+                padding: const EdgeInsets.only(right: 16,left: 16,bottom: 60),
+                shrinkWrap: true,
+                  itemBuilder: (context, index) =>  CustomerTile(customer: controller.customerList[index],),
+                  separatorBuilder: (context, index) => 12.hBox,
+                  itemCount: controller.customerList.length);}
+            ),
           )
         ],
       ),
@@ -53,8 +63,10 @@ class CustomerView extends StatelessWidget {
 
 class CustomerTile extends StatelessWidget {
   const CustomerTile({
-    super.key,
+    super.key, required this.customer,
   });
+
+  final Customer customer;
 
   @override
   Widget build(BuildContext context) {
@@ -66,18 +78,19 @@ class CustomerTile extends StatelessWidget {
       },
       leading: Container(
         height: 60,
+        width: 60,
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
-        child: const CachedImage(
-          imageUrl: "assets/images/default_image.png",
-          isAssetImg: true,
+        child:  CachedImage(
+          imageUrl: customer.profilePic,
+          
         ),
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const AppText(
-            "Nesto Super Market",
-            style: TextStyle(
+           AppText(
+            customer.name.upperFirst,
+            style: const TextStyle(
                 fontFamily: inter6SemiBold,
                 fontSize: 14,
                 color: secondaryBrandClr),
@@ -104,11 +117,11 @@ class CustomerTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppText(
-            "ID: HEJDH",
+            "ID: ${customer.id}",
             style: captionOne,
           ),
           AppText(
-            "Palazhi,Hilite",
+           "${customer.street.upperFirst}, ${customer.city.upperFirst},${customer.state.upperFirst}",
             style: captionOne,
           ),
         ],

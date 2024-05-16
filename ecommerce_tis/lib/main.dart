@@ -1,3 +1,4 @@
+import 'package:ecommerce_tis/app/model/cart_model.dart';
 import 'package:ecommerce_tis/app/model/discovery_item_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,6 +20,13 @@ void main()async {
      Hive.registerAdapter(DiscoveryItemAdapter());
     
    }
+
+   if(!Hive.isAdapterRegistered(CartAdapter().typeId)){
+     Hive.registerAdapter(CartAdapter());
+    
+   }
+
+    await Hive.openBox<Cart>('cartBox');
 
   runApp(const MyApp());
 }

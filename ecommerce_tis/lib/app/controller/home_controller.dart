@@ -1,6 +1,5 @@
 import 'package:ecommerce_tis/app/model/category_model.dart';
 import 'package:ecommerce_tis/app/model/discovery_item_model.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
