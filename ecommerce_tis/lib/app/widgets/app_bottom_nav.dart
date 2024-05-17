@@ -21,40 +21,46 @@ class AppBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      selectedFontSize: 12,
-      onTap: (index) => onTap(index),
-      currentIndex: 0,
-      items: menus
-          .map(
-            (menu) => BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 3),
-                child: BnvIcon(
-                  iconName: menu,
-                  color:primaryClr ,
+    return ClipRRect(
+     borderRadius: const BorderRadius.only(
+        topRight: Radius.circular(40),
+        topLeft: Radius.circular(40),
+      ),
+      child: BottomNavigationBar(
+        selectedFontSize: 12,
+        onTap: (index) => onTap(index),
+        currentIndex: 0,
+        items: menus
+            .map(
+              (menu) => BottomNavigationBarItem(
+                icon: Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: BnvIcon(
+                    iconName: menu,
+                    color:primaryClr ,
+                  ),
                 ),
-              ),
-              activeIcon: Padding(
-                padding: const EdgeInsets.only(bottom: 3),
-                child: BnvIcon(
-                  iconName: "${menu}_fill",
-                  color: primaryClr,
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: BnvIcon(
+                    iconName: "${menu}_fill",
+                    color: primaryClr,
+                  ),
                 ),
+                label: menu.upperFirst,
               ),
-              label: menu.upperFirst,
-            ),
-          )
-          .toList(),
-      showUnselectedLabels: true,
-      backgroundColor: btmnClr,
-      type: BottomNavigationBarType.fixed,
-      selectedLabelStyle: const TextStyle(
-          color: primaryClr, fontSize: 12, fontFamily: inter4Regular),
-      unselectedLabelStyle: const TextStyle(
-          color: Colors.black, fontSize: 12, fontFamily: inter4Regular),
-      fixedColor: primaryClr,
-      landscapeLayout: BottomNavigationBarLandscapeLayout.linear,
+            )
+            .toList(),
+        showUnselectedLabels: true,
+        backgroundColor: btmnClr,
+        type: BottomNavigationBarType.fixed,
+        selectedLabelStyle: const TextStyle(
+            color: primaryClr, fontSize: 12, fontFamily: inter4Regular),
+        unselectedLabelStyle: const TextStyle(
+            color: Colors.black, fontSize: 12, fontFamily: inter4Regular),
+        fixedColor: primaryClr,
+        landscapeLayout: BottomNavigationBarLandscapeLayout.linear,
+      ),
     );
   }
 }
@@ -75,6 +81,24 @@ class BnvIcon extends StatelessWidget {
       padding: const EdgeInsets.all(2.0),
       child: AppSvg(assetName: iconName, color: color),
     );
+  }
+}
+
+class BottomNavCurveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0,8);
+    path.quadraticBezierTo(size.width / 2, 0, size.width, 20);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:ecommerce_tis/app/controller/product_controller.dart';
 import 'package:ecommerce_tis/app/model/category_model.dart';
 import 'package:ecommerce_tis/app/model/discovery_item_model.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,8 @@ class HomeController extends GetxController {
   RxList<DiscoveryItem> discoveryList=<DiscoveryItem>[].obs;
 
   RxBool isliked = false.obs;
+
+   
 
  
   @override

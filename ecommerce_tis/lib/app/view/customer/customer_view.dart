@@ -44,7 +44,7 @@ class CustomerView extends StatelessWidget {
           Expanded(
             child: Obx(() {
               if(controller.customerList.isEmpty){
-                return const AppLoader();
+                 Center(child: AppText("No Customers",style: subheadOne.copyWith(color: Colors.red),align: TextAlign.center,));
               }
               
             return ListView.separated(
@@ -74,7 +74,7 @@ class CustomerTile extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       tileColor: highlightTextClr,
       onTap: () {
-        Screen.open(const CheckOutView());
+        Screen.open(CheckOutView(customerId: customer.id.toString(),));
       },
       leading: Container(
         height: 60,

@@ -1,15 +1,13 @@
 import 'package:ecommerce_tis/app/controller/product_controller.dart';
 import 'package:ecommerce_tis/app/view/customer/customer_view.dart';
-import 'package:ecommerce_tis/app/view/home/home_view.dart';
 import 'package:ecommerce_tis/app/widgets/app_loader.dart';
 import 'package:ecommerce_tis/core/extensions/margin_ext.dart';
 import 'package:ecommerce_tis/core/screen_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 import '../../../core/style/colors.dart';
 import '../../../core/style/fonts.dart';
@@ -17,13 +15,14 @@ import '../../model/cart_model.dart';
 import '../../model/product_model.dart';
 import '../../widgets/app_cached_image.dart';
 import '../../widgets/app_text.dart';
+import '../checkout/checkout_view.dart';
 
 class ProductView extends StatelessWidget {
   const ProductView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ProductController());
+    final controller = Get.put(ProductController(),tag: "productView");
     return Scaffold(
       appBar: AppBar(
         title: AppText(
@@ -32,24 +31,44 @@ class ProductView extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: primaryClr),
         actions: [
-          Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: highlightTextClr),
-              child: const Icon(
-                Icons.shopping_cart_checkout_outlined,
-                color: primaryClr,
-              )),
-          8.wBox
+          badges.Badge(
+            badgeContent: Obx(
+              () {
+                
+              return AppText(
+              controller.cartCount.value,
+              style: captionOne.copyWith(color: Colors.white),
+            );}),
+            child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: highlightTextClr),
+                child: GestureDetector(
+                  onTap: () {
+                    Screen.open(const CheckOutView());
+                  },
+                  child: const Icon(
+                    Icons.shopping_cart_checkout_outlined,
+                    color: primaryClr,
+                  ),
+                )),
+          ),
+          16.wBox
         ],
       ),
       bottomNavigationBar: CheckoutButton(
-        onTap: () => Screen.open(CustomerView()),
+        onTap: () => Screen.open(const CustomerView()),
       ),
-      body: Obx(() {
+      body:LiquidPullToRefresh(onRefresh: ()async {
+        controller.getProduct();
+        
+      },
+      
+
+       child:  Obx(() {
         if (controller.productList.isEmpty) {
-          return const AppLoader();
+          return  Center(child: AppText("No products.",style: subheadOne.copyWith(color: Colors.red),align: TextAlign.center,));
         }
 
         return GridView.builder(
@@ -67,7 +86,8 @@ class ProductView extends StatelessWidget {
             );
           },
         );
-      }),
+      }))
+      
     );
   }
 }
@@ -146,51 +166,55 @@ class ProductContainer extends StatelessWidget {
                       Row(
                         children: [
                           Obx(() {
-                            return  controller.cartList
-                                      .firstWhere(
-                                        (item) => item.id == product.id,
-                                        orElse: () =>
-                                            Cart('', 0, 0, 0, '', id: product.id),
-                                      )
-                                      .quantity!=0? GestureDetector(
-                            onTap: () {
-                              controller.removeFromCart(product);
-                            },
-                            child: const Icon(
-                              Icons.do_not_disturb_on_outlined,
-                              color: primaryClr,
-                            ),
-                          ):0.hBox;
+                            return controller.cartList
+                                        .firstWhere(
+                                          (item) => item.id == product.id,
+                                          orElse: () => Cart('', 0, 0, 0, '',
+                                              id: product.id),
+                                        )
+                                        .quantity !=
+                                    0
+                                ? GestureDetector(
+                                    onTap: () {
+                                      controller.removeFromCart(product);
+                                      controller.calculateTotal();
+                                    },
+                                    child: const Icon(
+                                      Icons.do_not_disturb_on_outlined,
+                                      color: primaryClr,
+                                    ),
+                                  )
+                                : 0.hBox;
                           }),
-                         
-                          Obx( () {
-                            
-                            
-                          return controller.cartList
-                                      .firstWhere(
-                                        (item) => item.id == product.id,
-                                        orElse: () =>
-                                            Cart('', 0, 0, 0, '', id: product.id),
-                                      )
-                                      .quantity!=0?  SizedBox(
-                                width: 30,
-                                child: AppText(
-                                  align: TextAlign.center,
-                                  controller.cartList
-                                      .firstWhere(
-                                        (item) => item.id == product.id,
-                                        orElse: () =>
-                                            Cart('', 0, 0, 0, '', id: product.id),
-                                      )
-                                      .quantity
-                                      .toString(),
-                                  overflow: TextOverflow.ellipsis,
-                                )):0.wBox
-                                ;}
-                          ),
+                          Obx(() {
+                            return controller.cartList
+                                        .firstWhere(
+                                          (item) => item.id == product.id,
+                                          orElse: () => Cart('', 0, 0, 0, '',
+                                              id: product.id),
+                                        )
+                                        .quantity !=
+                                    0
+                                ? SizedBox(
+                                    width: 30,
+                                    child: AppText(
+                                      align: TextAlign.center,
+                                      controller.cartList
+                                          .firstWhere(
+                                            (item) => item.id == product.id,
+                                            orElse: () => Cart('', 0, 0, 0, '',
+                                                id: product.id),
+                                          )
+                                          .quantity
+                                          .toString(),
+                                      overflow: TextOverflow.ellipsis,
+                                    ))
+                                : 0.wBox;
+                          }),
                           GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               controller.addToCart(product);
+                              controller.calculateTotal();
                             },
                             child: const Icon(
                               Icons.add_circle,
@@ -208,12 +232,11 @@ class ProductContainer extends StatelessWidget {
           ),
         ],
       ),
-       Positioned(
+      Positioned(
         left: 60,
         top: 12,
         child: CachedImage(
           imageUrl: product.image,
-         
           height: 50,
           width: 35,
         ),
@@ -231,6 +254,7 @@ class CheckoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<ProductController>();
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
@@ -251,10 +275,12 @@ class CheckoutButton extends StatelessWidget {
                   style: subheadTwo.copyWith(color: inputHintClr),
                 ),
                 4.hBox,
-                AppText(
-                  "\$45",
-                  style: titleTwo.copyWith(color: primaryClr),
-                )
+                Obx(() {
+                  return AppText(
+                    "₹${controller.totalSum.value}",
+                    style: titleTwo.copyWith(color: primaryClr),
+                  );
+                })
               ],
             ),
             const Spacer(),

@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_tis/app/controller/home_controller.dart';
+import 'package:ecommerce_tis/app/controller/product_controller.dart';
 import 'package:ecommerce_tis/app/model/category_model.dart';
 import 'package:ecommerce_tis/app/model/discovery_item_model.dart';
+import 'package:ecommerce_tis/app/view/checkout/checkout_view.dart';
 import 'package:ecommerce_tis/app/view/customer/customer_view.dart';
 import 'package:ecommerce_tis/app/view/product/product_view.dart';
 import 'package:ecommerce_tis/app/widgets/app_bottom_nav.dart';
@@ -14,8 +16,10 @@ import 'package:ecommerce_tis/core/style/colors.dart';
 import 'package:ecommerce_tis/core/style/fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 import '../../widgets/app_loader.dart';
 
@@ -27,6 +31,7 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(HomeController());
+    final productController = Get.put(ProductController(),tag:"homeview");
     final List carouselImages = [
       'assets/images/carousal1.png',
       'assets/images/carousal2.png',
@@ -48,22 +53,43 @@ class HomeView extends StatelessWidget {
           style: titleTwo.copyWith(color: primaryClr),
         ),
         actions: [
-          Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: highlightTextClr),
-              child: const Icon(
-                Icons.shopping_cart_checkout_outlined,
-                color: primaryClr,
-              )),
-          8.wBox
+          badges.Badge(
+            position: badges.BadgePosition.topEnd(top: -6,end: -6),
+            badgeContent: Obx(
+              () {
+                
+              return AppText(
+              
+              productController.cartCount.value,
+              style: captionOne.copyWith(color: Colors.white),
+            );}),
+            child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: highlightTextClr),
+                child: GestureDetector(
+                  onTap: () {
+                    Screen.open(const CheckOutView());
+                  },
+                  child: const Icon(
+                    Icons.shopping_cart_checkout_outlined,
+                    color: primaryClr,
+                  ),
+                )),
+          ),
+          16.wBox
         ],
       ),
       bottomNavigationBar: AppBottomNav(onTap: (index) {
         Screen.open(screens[index]);
       }),
-      body: ListView(
+      body: LiquidPullToRefresh(
+         backgroundColor: primaryClr,
+                  animSpeedFactor: 2,
+                  color: primaryClr.withOpacity(0.2),
+                  showChildOpacityTransition: false,
+        child: ListView(
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 16),
         children: [
@@ -147,58 +173,50 @@ class HomeView extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Obx(() {
-
-              if(  controller.discoveryList.isEmpty){
-                return const AppLoader();
-              }else{
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Obx(() {
-                      
-                    return DiscoveryContainer(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Obx(() {
+                if (controller.discoveryList.isEmpty) {
+                  return const AppLoader();
+                } else {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Obx(() {
+                        return DiscoveryContainer(
                           item: controller.discoveryList[0],
                           controller: controller,
-                        
-                      );}
-                    ),
-                    const Spacer(),
-                     Obx(() {
-                      
-                    return DiscoveryContainer(
+                        );
+                      }),
+                      const Spacer(),
+                      Obx(() {
+                        return DiscoveryContainer(
                           item: controller.discoveryList[1],
                           controller: controller,
-                        
-                      );}
-                    ),
-                  ],
-                );
-
-              }
-            
-              
-            }
-            )
-           
-          ),
+                        );
+                      }),
+                    ],
+                  );
+                }
+              })),
         ],
-      ),
+      ), onRefresh: ()async {
+        controller.searchCategories("");
+        
+      },)
+     
     );
   }
 }
 
 class DiscoveryContainer extends StatelessWidget {
   const DiscoveryContainer({
-    super.key, required this.item, required this.controller,
-   
-    
+    super.key,
+    required this.item,
+    required this.controller,
   });
 
   final DiscoveryItem item;
   final HomeController controller;
-  
 
   @override
   Widget build(BuildContext context) {
@@ -219,14 +237,15 @@ class DiscoveryContainer extends StatelessWidget {
                   children: [
                     const Spacer(),
                     IconButton(
-          icon: Icon(
-            item.isliked ? Icons.favorite : Icons.favorite_border,
-            color: item.isliked ? Colors.red : null,size: 20,
-          ),
-          onPressed: () {
-            controller.toggleLike(item);
-          },
-        ),
+                      icon: Icon(
+                        item.isliked ? Icons.favorite : Icons.favorite_border,
+                        color: item.isliked ? Colors.red : null,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        controller.toggleLike(item);
+                      },
+                    ),
                   ],
                 ),
                 Padding(
@@ -238,7 +257,7 @@ class DiscoveryContainer extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AppText(
-                           item.itemName,
+                            item.itemName,
                             style: const TextStyle(
                                 fontFamily: inter6SemiBold,
                                 fontSize: 12,
