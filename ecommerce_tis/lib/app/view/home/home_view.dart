@@ -31,7 +31,7 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(HomeController());
-    final productController = Get.put(ProductController(),tag:"homeview");
+    final productController = Get.put(ProductController());
     final List carouselImages = [
       'assets/images/carousal1.png',
       'assets/images/carousal2.png',

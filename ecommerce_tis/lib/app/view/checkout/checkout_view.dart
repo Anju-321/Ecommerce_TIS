@@ -32,7 +32,7 @@ class CheckOutView extends StatelessWidget {
       bottomNavigationBar:((customerId != null) && (controller.cartList.isNotEmpty)) ?  CheckoutButton(onTap: () async{
        await controller.placeOrder(customerId:int.parse(customerId??""));
 
-       Screen.open(const HomeView());
+       Screen.openAsNewPage(const HomeView());
        
     
       },):null,
