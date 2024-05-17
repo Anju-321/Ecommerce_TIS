@@ -18,7 +18,8 @@ class CheckOutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller=Get.put(ProductController(),tag: "checkout");
+    final controller=Get.put(ProductController());
+    debugPrint("...........$customerId");
 
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +62,7 @@ class ProductCheckoutTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final controller = Get.find<ProductController>(tag: "checkout");
+     final controller = Get.find<ProductController>();
 
     return Stack(
       children:[ Column(
