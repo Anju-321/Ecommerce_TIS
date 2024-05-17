@@ -22,7 +22,7 @@ class ProductView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ProductController(),tag: "productView");
+    final controller = Get.put(ProductController(),);
     return Scaffold(
       appBar: AppBar(
         title: AppText(
