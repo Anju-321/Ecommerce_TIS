@@ -102,7 +102,7 @@ class ProductContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ProductController>();
+    final controller = Get.find<ProductController>(tag: "productView");
     return Stack(children: [
       Column(
         children: [

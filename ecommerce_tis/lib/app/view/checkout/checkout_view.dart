@@ -61,7 +61,7 @@ class ProductCheckoutTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final controller = Get.find<ProductController>();
+     final controller = Get.find<ProductController>(tag: "checkout");
 
     return Stack(
       children:[ Column(
